@@ -157,6 +157,8 @@
 #else
 #include <GLES3/gl3.h>          // Use GL ES 3
 #endif
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD2)
+#include <glad/gl.h>
 #elif !defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 // Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
 // Helper libraries are often used for this purpose! Here we are using our own minimal custom loader based on gl3w.
@@ -287,6 +289,11 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
         fprintf(stderr, "Failed to initialize OpenGL loader!\n");
         return false;
     }
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD2)
+    if (gladLoaderLoadGL() < GLAD_MAKE_VERSION(3, 1))
+    {
+        return false;
+    }
 #endif
 
     // Setup backend capabilities flags
@@ -397,7 +404,7 @@ void    ImGui_ImplOpenGL3_Shutdown()
     IM_DELETE(bd);
 }
 
-void    ImGui_ImplOpenGL3_NewFrame()
+bool    ImGui_ImplOpenGL3_NewFrame()
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplOpenGL3_Init()?");
