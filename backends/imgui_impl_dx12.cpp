@@ -62,7 +62,6 @@ struct ImGui_ImplDX12_Data
     ID3D12Resource*             pFontTextureResource;
     D3D12_CPU_DESCRIPTOR_HANDLE hFontSrvCpuDescHandle;
     D3D12_GPU_DESCRIPTOR_HANDLE hFontSrvGpuDescHandle;
-    ID3D12DescriptorHeap*       pd3dSrvDescHeap;
     UINT                        numFramesInFlight;
 
     ImGui_ImplDX12_RenderBuffers* pFrameResources;
@@ -667,7 +666,7 @@ void    ImGui_ImplDX12_InvalidateDeviceObjects()
     }
 }
 
-bool ImGui_ImplDX12_Init(ID3D12Device* device, int num_frames_in_flight, DXGI_FORMAT rtv_format, ID3D12DescriptorHeap* cbv_srv_heap,
+bool ImGui_ImplDX12_Init(ID3D12Device* device, int num_frames_in_flight, DXGI_FORMAT rtv_format, 
                          D3D12_CPU_DESCRIPTOR_HANDLE font_srv_cpu_desc_handle, D3D12_GPU_DESCRIPTOR_HANDLE font_srv_gpu_desc_handle)
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -686,7 +685,6 @@ bool ImGui_ImplDX12_Init(ID3D12Device* device, int num_frames_in_flight, DXGI_FO
     bd->hFontSrvGpuDescHandle = font_srv_gpu_desc_handle;
     bd->pFrameResources = new ImGui_ImplDX12_RenderBuffers[num_frames_in_flight];
     bd->numFramesInFlight = num_frames_in_flight;
-    bd->pd3dSrvDescHeap = cbv_srv_heap;
     bd->frameIndex = UINT_MAX;
     bd->handleIncrement = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
