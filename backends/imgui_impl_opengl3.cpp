@@ -291,9 +291,7 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     }
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD2)
     if (gladLoaderLoadGL() < GLAD_MAKE_VERSION(3, 1))
-    {
         return false;
-    }
 #endif
 
     // Setup backend capabilities flags
@@ -314,7 +312,14 @@ bool    ImGui_ImplOpenGL3_Init(const char* glsl_version)
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     if (major == 0 && minor == 0)
-        sscanf(gl_version_str, "%d.%d", &major, &minor); // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
+    {
+        // Query GL_VERSION in desktop GL 2.x, the string will start with "<major>.<minor>"
+        const char* gl_version = (const char*)glGetString(GL_VERSION);
+        if (gl_version == nullptr)
+            return false;
+
+        sscanf(gl_version, "%d.%d", &major, &minor);
+    }
     bd->GlVersion = (GLuint)(major * 100 + minor * 10);
 #if defined(GL_CONTEXT_PROFILE_MASK)
     if (bd->GlVersion >= 320)
@@ -409,10 +414,16 @@ bool    ImGui_ImplOpenGL3_NewFrame()
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplOpenGL3_Init()?");
 
-    if (!bd->ShaderHandle)
-        ImGui_ImplOpenGL3_CreateDeviceObjects();
-    if (!bd->FontTexture)
-        ImGui_ImplOpenGL3_CreateFontsTexture();
+    if (!bd->ShaderHandle && !ImGui_ImplOpenGL3_CreateDeviceObjects())
+        return false;
+
+    if (!bd->FontTexture && !ImGui_ImplOpenGL3_CreateFontsTexture())
+    {
+        ImGui_ImplOpenGL3_DestroyDeviceObjects();
+        return false;
+    }
+
+    return true;
 }
 
 static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height, GLuint vertex_array_object)
