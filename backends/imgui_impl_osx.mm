@@ -89,6 +89,7 @@ struct ImGui_ImplOSX_Data
     NSTextInputContext*         InputContext;
     id                          Monitor;
     NSWindow*                   Window;
+    UInt32                      DeadKeyState;
 
     ImGui_ImplOSX_Data()        { memset(this, 0, sizeof(*this)); }
 };
