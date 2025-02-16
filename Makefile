@@ -26,4 +26,7 @@ $(BIN_DIR)/imgui.a: $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: all mkdirs
+clean:
+	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/*
+
+.PHONY: all mkdirs clean
